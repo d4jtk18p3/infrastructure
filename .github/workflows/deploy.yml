@@ -1,0 +1,15 @@
+name: Run-playbook
+
+on:
+  push 
+  
+  with:
+    playbook: site.yml
+    directory: ./
+    key: ${{secrets.SSH_PRIVATE_KEY}}
+    staging: |
+      [all]
+      example.com
+
+      [group1]
+      example.com

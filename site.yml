@@ -4,6 +4,6 @@
     system_dir: '{{ ansible_env.HOME }}/.proyek-3'
   roles:
     - common
-    - keycloak
+#    - keycloak
     - nginx
-    - postgres
+#    - postgres
