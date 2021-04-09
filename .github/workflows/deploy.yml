@@ -7,7 +7,7 @@ jobs:
   Run-Playbook:
     runs-on: ubuntu-latest
     steps:
-        uses: dawidd6/action-ansible-playbook@v2
+      - uses: dawidd6/action-ansible-playbook@v2
         with:
           playbook: site.yml
           directory: ./
