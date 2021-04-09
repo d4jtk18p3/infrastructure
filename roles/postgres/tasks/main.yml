@@ -1,0 +1,22 @@
+- name: create /data
+  file:
+    path: '{{ working_dir }}/data'
+    state: directory
+- name: start postgres
+  docker_container:
+    name: proyek3-postgres
+    image: postgres:13-alpine
+    state: started
+    restart_policy: unless-stopped
+    network_mode: '{{ docker_bridge_network }}'
+    networks:
+      - name: '{{ docker_bridge_network }}'
+        ipv4_address: '{{ docker_ipv4_address_postgres }}'
+    mounts:
+      - source: '{{ working_dir }}/data'
+        target: /var/lib/postgresql/data
+        type: bind
+    env:
+      POSTGRES_USER: proyek3
+      POSTGRES_PASSWORD: proyek3
+      POSTGRES_DB: proyek3

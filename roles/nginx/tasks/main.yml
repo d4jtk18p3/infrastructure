@@ -1,0 +1,66 @@
+- name: 'clone {{ working_git }}'
+  ansible.builtin.git:
+    repo: '{{ working_git }}'
+    dest: '{{ working_dir }}'
+- name: create /etc/letsencrypt
+  file:
+    path: '{{ working_dir }}/etc/letsencrypt'
+    state: directory
+- name: create /var/lib/letsencrypt
+  file:
+    path: '{{ working_dir }}/var/lib/letsencrypt'
+    state: directory
+- name: create /var/www
+  file:
+    path: '{{ working_dir }}/var/www'
+    state: directory
+- name: create /etc/nginx/sites-available
+  file:
+    path: '{{ working_dir }}/etc/nginx/sites-available'
+    state: directory
+- name: create /etc/nginx/sites-enabled
+  file:
+    path: '{{ working_dir }}/etc/nginx/sites-enabled'
+    state: directory
+- name: start nginx
+  docker_container:
+    name: proyek3-nginx
+    image: nginx:1-alpine
+    state: started
+    recreate: yes
+    restart: yes
+    restart_policy: unless-stopped
+    network_mode: '{{ docker_bridge_network }}'
+    networks:
+      - name: '{{ docker_bridge_network }}'
+        ipv4_address: '{{ docker_ipv4_address_nginx }}'
+    mounts:
+      - source: '{{ working_dir }}/etc/letsencrypt'
+        target: /etc/letsencrypt
+        type: bind
+      - source: '{{ working_dir }}/var/lib/letsencrypt'
+        target: /var/lib/letsencrypt
+        type: bind
+      - source: '{{ working_dir }}/etc/nginx/nginx.conf'
+        target: /etc/nginx/nginx.conf
+        type: bind
+      - source: '{{ working_dir }}/etc/nginx/sites-available'
+        target: /etc/nginx/sites-available
+        type: bind
+      - source: '{{ working_dir }}/etc/nginx/sites-enabled'
+        target: /etc/nginx/sites-enabled
+        type: bind
+      - source: '{{ working_dir }}/var/www'
+        target: /var/www
+        type: bind
+    ports:
+      - '80:80'
+      - '443:443'
+- name: wait for nginx to start
+  wait_for:
+    port: 80
+- name: setup keycloak.ca9db134.nip.io
+  import_tasks: setup-vhost.yml
+  vars:
+    vhost: keycloak.ca9db134.nip.io
+    ipv4_address: '{{ docker_ipv4_address_keycloak }}'

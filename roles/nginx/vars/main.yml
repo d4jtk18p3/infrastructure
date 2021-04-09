@@ -1,0 +1,2 @@
+working_dir: '{{ system_dir }}/nginx'
+working_git: 'https://github.com/d4jtk18p3/proyek3-nginx.git'
