@@ -2,14 +2,13 @@ name: Run-playbook
 
 on:
   push 
-  
-  with:
-    playbook: site.yml
-    directory: ./
-    key: ${{secrets.SSH_PRIVATE_KEY}}
-    staging: |
-      [all]
-      example.com
-
-      [group1]
-      example.com
+ 
+jobs:
+  Run-Playbook:
+    runs-on: ubuntu-latest
+    steps:
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: site.yml
+          directory: ./
+          inventory: staging
