@@ -1,0 +1,9 @@
+- name: Site
+  hosts: all
+  vars:
+    system_dir: '{{ ansible_env.HOME }}/.proyek-3'
+  roles:
+    - common
+    - keycloak
+    - nginx
+    - postgres

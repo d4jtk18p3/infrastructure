@@ -1,0 +1,16 @@
+- name: start keycloak
+  docker_container:
+    name: proyek3-keycloak
+    image: quay.io/keycloak/keycloak:12.0.4
+    state: started
+    recreate: yes
+    restart: yes
+    restart_policy: unless-stopped
+    network_mode: '{{ docker_bridge_network }}'
+    networks:
+      - name: '{{ docker_bridge_network }}'
+        ipv4_address: '172.18.0.3'
+    env:
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+      PROXY_ADDRESS_FORWARDING: 'true'

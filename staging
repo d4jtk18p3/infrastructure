@@ -1,0 +1,7 @@
+202.157.177.52
+
+[all:vars]
+ENV=stagging
+docker_bridge_network=proyek3-network
+
+nginx_port=5000

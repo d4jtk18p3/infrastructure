@@ -1,0 +1,21 @@
+- name: create /etc/letsencrypt
+  file:
+    path: '{{ working_dir }}/etc/letsencrypt'
+    state: directory
+- name: create /var/lib/letsencrypt
+  file:
+    path: '{{ working_dir }}/var/lib/letsencrypt'
+    state: directory
+- name: create /var/www
+  file:
+    path: '{{ working_dir }}/var/www'
+    state: directory
+    mode: '775'
+- name: create /etc/nginx/sites-available
+  file:
+    path: '{{ working_dir }}/etc/nginx/sites-available'
+    state: directory
+- name: create /etc/nginx/sites-enabled
+  file:
+    path: '{{ working_dir }}/etc/nginx/sites-enabled'
+    state: directory

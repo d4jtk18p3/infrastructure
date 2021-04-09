@@ -1,0 +1,42 @@
+- name: create required directory
+  import_tasks: setup-dir.yml
+- name: start nginx
+  docker_container:
+    name: proyek3-nginx
+    image: nginx:1-alpine
+    state: started
+    restart: yes
+    restart_policy: unless-stopped
+    network_mode: '{{ docker_bridge_network }}'
+    networks:
+      - name: '{{ docker_bridge_network }}'
+        ipv4_address: '172.18.0.2'
+    mounts:
+      - source: '{{ working_dir }}/etc/letsencrypt'
+        target: /etc/letsencrypt
+        type: bind
+      - source: '{{ working_dir }}/var/lib/letsencrypt'
+        target: /var/lib/letsencrypt
+        type: bind
+      - source: '{{ working_dir }}/etc/nginx/nginx.conf'
+        target: /etc/nginx/nginx.conf
+        type: bind
+      - source: '{{ working_dir }}/etc/nginx/sites-available'
+        target: /etc/nginx/sites-available
+        type: bind
+      - source: '{{ working_dir }}/etc/nginx/sites-enabled'
+        target: /etc/nginx/sites-enabled
+        type: bind
+      - source: '{{ working_dir }}/var/www'
+        target: /var/www
+        type: bind
+    ports:
+      - '80:80'
+      - '443:443'
+- name: wait nginx
+  wait_for:
+    port: 80
+- name: setup keycloak.ca9db134.nip.io
+  import_tasks: setup-vhost.yml
+  vars:
+    vhost: keycloak.ca9db134.nip.io

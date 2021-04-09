@@ -1,0 +1,21 @@
+- name: 'check if /etc/nginx/sites-available/{{ vhost }}.j2 exists'
+  stat:
+    path: '{{ working_dir }}/etc/nginx/sites-available/{{ vhost }}.j2'
+  register: output
+- name: 'setup nginx server block for {{ vhost }}'
+  block:
+    - name: 'fetch /etc/nginx/sites-available/{{ vhost }}.j2 from server'
+      fetch:
+        src: '{{ working_dir }}/etc/nginx/sites-available/{{ vhost }}.j2'
+        dest: '/tmp/{{ vhost }}.j2'
+        flat: yes
+        fail_on_missing : yes
+    - name: 'write /etc/nginx/sites-available/{{ vhost }} from template'
+      template:
+        src: '/tmp/{{ vhost }}.j2'
+        dest: '{{ working_dir }}/etc/nginx/sites-available/{{ vhost }}'
+    - name: 'create symlink /etc/nginx/sites-available/{{ vhost }} -> /etc/nginx/sites-enabled/{{ vhost }}'
+      shell: 'docker exec proyek3-nginx ln -fs /etc/nginx/sites-available/{{ vhost }} /etc/nginx/sites-enabled'
+      notify:
+        - reload nginx
+  when: output.stat.isdir is defined and not output.stat.isdir

@@ -1,0 +1,35 @@
+- name: create '/var/www/{{ vhost }}/html'
+  file:
+    path: '{{ working_dir }}/var/www/{{ vhost }}/html'
+    state: directory
+- name: 'check if /etc/letsencrypt/live/{{ vhost }} exists'
+  become: true
+  stat:
+    path: '{{ working_dir }}/etc/letsencrypt/live/{{ vhost }}'
+  register: output
+- name: 'setup letsencrypt SSL/TLS for {{ vhost }}'
+  block:
+    - import_tasks: setup-server-block.yml
+      vars:
+        certbot_setup: True
+    - name: run certbot
+      docker_container:
+        name: proyek3-certbot
+        image: certbot/certbot
+        state: started
+        network_mode: '{{ docker_bridge_network }}'
+        mounts:
+          - source: '{{ working_dir }}/etc/letsencrypt'
+            target: /etc/letsencrypt
+            type: bind
+          - source: '{{ working_dir }}/var/lib/letsencrypt'
+            target: /var/lib/letsencrypt
+            type: bind
+          - source: '{{ working_dir }}/var/www'
+            target: /var/www
+            type: bind
+        command: 'certonly --webroot --webroot-path=/var/www/{{ vhost }}/html --email raefaldhi.amartya.tif418@polban.ac.id --agree-tos --no-eff-email --staging -d {{ vhost }}'
+  when: output.stat.isdir is defined and not output.stat.isdir
+- import_tasks: setup-server-block.yml
+  vars:
+    certbot_setup: False
