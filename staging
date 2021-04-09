@@ -1,4 +1,4 @@
-202.157.177.52 ansible_become_pass=proyek3 ansible_port=8288
+202.157.177.52 ansible_become_pass=proyek3 ansible_port=8288 ansible_user=proyek3 ansible_ssh_pass=proyek3
 
 [all:vars]
 ENV=stagging
