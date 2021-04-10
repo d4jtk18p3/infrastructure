@@ -5,6 +5,9 @@
 - name: install docker sdk
   pip:
     name: docker
+- name: install psycopg2
+  pip:
+    name: Psycopg2-binary
 - name: create docker bridge network
   docker_network:
     name: '{{ docker_bridge_network }}'

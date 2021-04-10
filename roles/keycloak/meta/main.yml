@@ -1,3 +1,5 @@
 dependencies:
   - role: common
-  - role: nginx
+  - role: postgres
+    vars:
+      postgres_schema: keycloak
