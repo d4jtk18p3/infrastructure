@@ -1,2 +1,0 @@
-- name: reload nginx
-  shell: docker exec -it proyek3-nginx nginx -s reload

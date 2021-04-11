@@ -1,23 +1,10 @@
-- name: create '/var/www/{{ vhost }}/html'
-  file:
-    path: '{{ root_dir }}/var/www/{{ vhost }}/html'
-    state: directory
-- name: 'check if /etc/letsencrypt/live/{{ vhost }} exists'
-  stat:
-    path: '{{ root_dir }}/etc/letsencrypt/live/{{ vhost }}'
-  become: yes
-  register: ssl_cert_path
-- name: 'setup letsencrypt SSL/TLS for {{ vhost }}'
+- name: setup certbot
   block:
-    - import_tasks: setup-server-block.yml
-      vars:
-        certbot_setup: True
     - name: run certbot
       docker_container:
         name: proyek3-certbot
         image: certbot/certbot
         state: started
-        recreate: yes
         network_mode: '{{ docker_bridge_network }}'
         mounts:
           - source: '{{ root_dir }}/etc/letsencrypt'
@@ -29,21 +16,47 @@
           - source: '{{ root_dir }}/var/www'
             target: /var/www
             type: bind
-        command:
-          - certonly
-          - --webroot
-          - '--webroot-path=/var/www/{{ vhost }}/html'
-          - '--email {{ maintainer_email }}'
-          - --agree-tos
-          - --no-eff-email
-          - --staging
-          - '-d {{ vhost }}'
-      register: certbot_result
+            command:
+              - certonly
+              - --webroot
+              - '--webroot-path=/var/www/{{ vhost }}/html'
+              - '--email {{ maintainer_email }}'
+              - --agree-tos
+              - --no-eff-email
+              - --staging
+              - '-d {{ vhost }}'
+        register: proyek3-certbot
     - name: wait for certbot to complete
       become: yes
       wait_for:
         path: '{{ root_dir }}/etc/letsencrypt/live/{{ vhost }}/privkey.pem'
-  when: not ssl_cert_path.stat.exists
-- import_tasks: setup-server-block.yml
-  vars:
-    certbot_setup: False
+  when: certbot_setup == True
+- name: 'check if sites-available/{{ vhost }}.j2 exists'
+  stat:
+    path: '{{ working_dir }}/sites-available/{{ vhost }}.j2'
+  register: vhost_config
+- name: 'setup nginx server block for {{ vhost }}'
+  block:
+    - name: 'fetch sites-available/{{ vhost }}.j2 from server'
+      fetch:
+        src: '{{ working_dir }}/sites-available/{{ vhost }}.j2'
+        dest: '/tmp/{{ vhost }}.j2'
+        flat: yes
+        fail_on_missing : yes
+    - name: 'write /etc/nginx/sites-enabled/{{ vhost }} from {{ working_dir }}/sites-available/{{ vhost }}.j2'
+      template:
+        src: '/tmp/{{ vhost }}.j2'
+        dest: '{{ root_dir }}/etc/nginx/sites-enabled/{{ vhost }}'
+  when: vhost_config.stat.isdir is defined and not vhost_config.stat.isdir
+- name: start nginx
+  docker_container:
+    name: proyek3-nginx
+    state: started
+    restart: yes
+  register: nginx_container
+- name: wait for nginx to complete
+  shell: "docker logs proyek3-nginx --since {{ nginx_container.container['State']['StartedAt'] }}"
+  register: nginx_logs
+  until: nginx_logs.stdout.find('Configuration complete; ready for start up') != -1
+  retries: 10
+  delay: 3

@@ -2,11 +2,9 @@
   hosts: deployment
   vars:
     system_dir: '{{ ansible_env.HOME }}/.proyek-3'
-  roles:
-    - common
-    - role: keycloak
-      tags: keycloak
-    - role: nginx
-      tags: nginx
-    - role: postgres
-      tags: postgres
+  tasks:
+    - name: dbg
+      debug:
+        msg: '{{ maintainer_email }}'
+    - import_role:
+        name: "{{ role_name }}"

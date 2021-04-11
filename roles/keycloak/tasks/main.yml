@@ -20,12 +20,12 @@
         target: /opt/jboss/keycloak/themes/proyek3-theme
         type: bind
     env:
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: admin
+      KEYCLOAK_USER: '{{ keycloak_username }}'
+      KEYCLOAK_PASSWORD: '{{ keycloak_password }}'
       PROXY_ADDRESS_FORWARDING: 'true'
       DB_VENDOR: postgres
       DB_ADDR: '{{ docker_ipv4_address_postgres }}'
-      DB_USER: proyek3
-      DB_PASSWORD: proyek3
-      DB_DATABASE: proyek3
+      DB_USER: '{{ postgres_username }}'
+      DB_PASSWORD: '{{ postgres_password }}'
+      DB_DATABASE: '{{ postgres_database }}'
       DB_SCHEMA: keycloak

@@ -7,8 +7,6 @@
     name: proyek3-postgres
     image: postgres:13-alpine
     state: started
-    recreate: yes
-    restart: yes
     restart_policy: unless-stopped
     network_mode: '{{ docker_bridge_network }}'
     networks:
@@ -19,9 +17,9 @@
         target: /var/lib/postgresql/data
         type: bind
     env:
-      POSTGRES_USER: proyek3
-      POSTGRES_PASSWORD: proyek3
-      POSTGRES_DB: proyek3
+      POSTGRES_USER: '{{ postgres_username }}'
+      POSTGRES_PASSWORD: '{{ postgres_password }}'
+      POSTGRES_DB: '{{ postgres_database }}'
     ports:
       - '5432:5432'
 - name: wait for postgres to accept connection
@@ -35,9 +33,9 @@
     - name: 'create {{ postgres_schema }} schema'
       postgresql_query:
         login_host: '{{ docker_ipv4_address_postgres }}'
-        login_user: proyek3
-        login_password: proyek3
-        login_db: proyek3
+        login_user: '{{ postgres_username }}'
+        login_password: '{{ postgres_password }}'
+        login_db: '{{ postgres_database }}'
         autocommit: yes
         query: 'CREATE SCHEMA IF NOT EXISTS {{ postgres_schema }};'
   when: postgres_schema is defined

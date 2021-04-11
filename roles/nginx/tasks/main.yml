@@ -15,21 +15,15 @@
   file:
     path: '{{ root_dir }}/var/www'
     state: directory
-- name: create /etc/nginx/sites-available
-  file:
-    path: '{{ root_dir }}/etc/nginx/sites-available'
-    state: directory
 - name: create /etc/nginx/sites-enabled
   file:
     path: '{{ root_dir }}/etc/nginx/sites-enabled'
     state: directory
-- name: start nginx
+- name: create proyek3-nginx
   docker_container:
     name: proyek3-nginx
     image: nginx:1-alpine
-    state: started
-    recreate: yes
-    restart: yes
+    state: present
     restart_policy: unless-stopped
     network_mode: '{{ docker_bridge_network }}'
     networks:
@@ -54,13 +48,24 @@
     ports:
       - '80:80'
       - '443:443'
-- name: wait for nginx to start
-  wait_for:
-    port: 80
 - name: configure vhost if the vars exists
+  vars:
+    ipv4_address: '{{ docker_ipv4_address_keycloak }}'
   block:
-    - name: setup {{ vhost }}
-      import_tasks: setup-vhost.yml
+    - name: create '/var/www/{{ vhost }}/html'
+      file:
+        path: '{{ root_dir }}/var/www/{{ vhost }}/html'
+        state: directory
+    - name: 'check if /etc/letsencrypt/live/{{ vhost }} exists'
+      stat:
+        path: '{{ root_dir }}/etc/letsencrypt/live/{{ vhost }}'
+      become: yes
+      register: ssl_cert_path
+    - import_tasks: setup-vhost.yml
       vars:
-        ipv4_address: '{{ docker_ipv4_address_keycloak }}'
+        certbot_setup: True
+      when: not ssl_cert_path.stat.exists
+    - import_tasks: setup-vhost.yml
+      vars:
+        certbot_setup: False
   when: vhost is defined
