@@ -2,6 +2,7 @@
   ansible.builtin.git:
     repo: '{{ working_git }}'
     dest: '{{ working_dir }}'
+    version: staging
 - name: start keycloak
   docker_container:
     name: proyek3-keycloak
@@ -15,7 +16,7 @@
       - name: '{{ docker_bridge_network }}'
         ipv4_address: '{{ docker_ipv4_address_keycloak }}'
     mounts:
-      - source: '{{ working_dir }}/opt/jboss/keycloak/themes/proyek3-theme'
+      - source: '{{ working_dir }}/themes/proyek3-theme'
         target: /opt/jboss/keycloak/themes/proyek3-theme
         type: bind
     env:

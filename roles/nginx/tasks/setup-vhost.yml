@@ -1,10 +1,10 @@
 - name: create '/var/www/{{ vhost }}/html'
   file:
-    path: '{{ working_dir }}/var/www/{{ vhost }}/html'
+    path: '{{ root_dir }}/var/www/{{ vhost }}/html'
     state: directory
 - name: 'check if /etc/letsencrypt/live/{{ vhost }} exists'
   stat:
-    path: '{{ working_dir }}/etc/letsencrypt/live/{{ vhost }}'
+    path: '{{ root_dir }}/etc/letsencrypt/live/{{ vhost }}'
   become: yes
   register: ssl_cert_path
 - name: 'setup letsencrypt SSL/TLS for {{ vhost }}'
@@ -20,13 +20,13 @@
         recreate: yes
         network_mode: '{{ docker_bridge_network }}'
         mounts:
-          - source: '{{ working_dir }}/etc/letsencrypt'
+          - source: '{{ root_dir }}/etc/letsencrypt'
             target: /etc/letsencrypt
             type: bind
-          - source: '{{ working_dir }}/var/lib/letsencrypt'
+          - source: '{{ root_dir }}/var/lib/letsencrypt'
             target: /var/lib/letsencrypt
             type: bind
-          - source: '{{ working_dir }}/var/www'
+          - source: '{{ root_dir }}/var/www'
             target: /var/www
             type: bind
         command:
@@ -42,7 +42,7 @@
     - name: wait for certbot to complete
       become: yes
       wait_for:
-        path: '{{ working_dir }}/etc/letsencrypt/live/{{ vhost }}/privkey.pem'
+        path: '{{ root_dir }}/etc/letsencrypt/live/{{ vhost }}/privkey.pem'
   when: not ssl_cert_path.stat.exists
 - import_tasks: setup-server-block.yml
   vars:

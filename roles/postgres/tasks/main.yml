@@ -30,7 +30,7 @@
   until: proyek3_postgres_logs.stderr.find('database system is ready to accept connections') != -1
   retries: 10
   delay: 3
-- name: create schema if vars exists
+- name: create schema if the vars exists
   block:
     - name: 'create {{ postgres_schema }} schema'
       postgresql_query:

@@ -1,21 +1,19 @@
-- name: 'check if /etc/nginx/sites-available/{{ vhost }}.j2 exists'
+- name: 'check if sites-available/{{ vhost }}.j2 exists'
   stat:
-    path: '{{ working_dir }}/etc/nginx/sites-available/{{ vhost }}.j2'
+    path: '{{ working_dir }}/sites-available/{{ vhost }}.j2'
   register: vhost_config
 - name: 'setup nginx server block for {{ vhost }}'
   block:
-    - name: 'fetch /etc/nginx/sites-available/{{ vhost }}.j2 from server'
+    - name: 'fetch sites-available/{{ vhost }}.j2 from server'
       fetch:
-        src: '{{ working_dir }}/etc/nginx/sites-available/{{ vhost }}.j2'
+        src: '{{ working_dir }}/sites-available/{{ vhost }}.j2'
         dest: '/tmp/{{ vhost }}.j2'
         flat: yes
         fail_on_missing : yes
-    - name: 'write /etc/nginx/sites-available/{{ vhost }} from template'
+    - name: 'write /etc/nginx/sites-enabled/{{ vhost }} from {{ working_dir }}/sites-available/{{ vhost }}.j2'
       template:
         src: '/tmp/{{ vhost }}.j2'
-        dest: '{{ working_dir }}/etc/nginx/sites-available/{{ vhost }}'
-    - name: 'create symlink /etc/nginx/sites-available/{{ vhost }} -> /etc/nginx/sites-enabled/{{ vhost }}'
-      shell: 'docker exec proyek3-nginx ln -fs /etc/nginx/sites-available/{{ vhost }} /etc/nginx/sites-enabled'
+        dest: '{{ root_dir }}/etc/nginx/sites-available/{{ vhost }}'
   when: vhost_config.stat.isdir is defined and not vhost_config.stat.isdir
 - name: 'reload nginx for {{ vhost }}'
   shell: docker exec -it proyek3-nginx nginx -s reload
