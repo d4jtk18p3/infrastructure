@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: registry
+  namespace: proyek3
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: 'HTTPS'
+    nginx.ingress.kubernetes.io/proxy-body-size: '0m'
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  tls:
+  - hosts:
+    - {{ registry_hostname }}
+    secretName: registry.tls
+  rules:
+  - host: {{ registry_hostname }}
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: registry
+            port:
+              number: 80

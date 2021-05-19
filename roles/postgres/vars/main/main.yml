@@ -1,0 +1,7 @@
+working_dir: '{{ system_tmp_dir }}/postgres'
+storage_dir: '{{ system_storage_dir }}/postgres'
+
+storage_data_0_dir: '{{ system_storage_dir }}/postgres/data-0'
+
+postgres_username: proyek3
+postgres_password: '{{ vault_postgres_password }}'

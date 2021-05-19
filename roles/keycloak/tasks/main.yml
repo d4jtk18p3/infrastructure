@@ -1,31 +1,36 @@
-- name: 'clone {{ working_git }}'
-  ansible.builtin.git:
-    repo: '{{ working_git }}'
-    dest: '{{ working_dir }}'
-    version: staging
-- name: start keycloak
-  docker_container:
-    name: proyek3-keycloak
-    image: quay.io/keycloak/keycloak:12.0.4
-    state: started
-    recreate: yes
-    restart: yes
-    restart_policy: unless-stopped
-    network_mode: '{{ docker_bridge_network }}'
-    networks:
-      - name: '{{ docker_bridge_network }}'
-        ipv4_address: '{{ docker_ipv4_address_keycloak }}'
-    mounts:
-      - source: '{{ working_dir }}/themes/proyek3-theme'
-        target: /opt/jboss/keycloak/themes/proyek3-theme
-        type: bind
-    env:
-      KEYCLOAK_USER: '{{ keycloak_username }}'
-      KEYCLOAK_PASSWORD: '{{ keycloak_password }}'
-      PROXY_ADDRESS_FORWARDING: 'true'
-      DB_VENDOR: postgres
-      DB_ADDR: '{{ docker_ipv4_address_postgres }}'
-      DB_USER: '{{ postgres_username }}'
-      DB_PASSWORD: '{{ postgres_password }}'
-      DB_DATABASE: '{{ postgres_database }}'
-      DB_SCHEMA: keycloak
+- name: Setup environment
+  block:
+  - name: 'Create {{ working_dir }}'
+    ansible.builtin.file:
+      path: '{{ working_dir }}'
+      state: directory
+  - name: 'Create {{ working_dir }}/k8s'
+    ansible.builtin.file:
+      path: '{{ working_dir }}/k8s'
+      state: directory
+- name: Setup keycloak
+  block:
+  - name: Template a file to k8s/deployment.yml
+    ansible.builtin.template:
+      src: k8s/deployment.yml.j2
+      dest: '{{ working_dir }}/k8s/deployment.yml'
+  - name: Apply Deployment manifest to the cluster
+    community.kubernetes.k8s:
+      src: '{{ working_dir }}/k8s/deployment.yml'
+      state: present
+  - name: Template a file to k8s/service.yml
+    ansible.builtin.template:
+      src: k8s/service.yml.j2
+      dest: '{{ working_dir }}/k8s/service.yml'
+  - name: Apply Service manifest to the cluster
+    community.kubernetes.k8s:
+      src: '{{ working_dir }}/k8s/service.yml'
+      state: present
+  - name: Template a file to k8s/ingress.yml
+    ansible.builtin.template:
+      src: k8s/ingress.yml.j2
+      dest: '{{ working_dir }}/k8s/ingress.yml'
+  - name: Apply Ingress manifest to the cluster
+    community.kubernetes.k8s:
+      src: '{{ working_dir }}/k8s/ingress.yml'
+      state: present

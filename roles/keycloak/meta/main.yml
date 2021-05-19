@@ -1,8 +1,0 @@
-dependencies:
-  - role: common
-  - role: postgres
-    vars:
-      postgres_schema: keycloak
-  - role: nginx
-    vars:
-      vhost: keycloak.ca9db134.nip.io

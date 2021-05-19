@@ -1,14 +1,5 @@
-docker_bridge_network: proyek3-network
-docker_subnet: 172.18.0.0/16
-docker_ipv4_address_nginx: 172.18.0.2
-docker_ipv4_address_postgres: 172.18.0.3
-docker_ipv4_address_keycloak: 172.18.0.4
-
 maintainer_email: raefaldhi.amartya.tif418@polban.ac.id
 
-postgres_username: proyek3
-postgres_password: '{{ vault_postgres_password }}'
-postgres_database: proyek3
-
-keycloak_username: admin
-keycloak_password: '{{ vault_keycloak_password }}'
+system_dir: '{{ ansible_env.HOME }}'
+system_tmp_dir: '{{ ansible_env.HOME }}/.tmp'
+system_storage_dir: '{{ ansible_env.HOME }}/.storage'

@@ -1,41 +1,46 @@
-- name: create /data
-  file:
-    path: '{{ working_dir }}/data'
-    state: directory
-- name: start postgres
-  docker_container:
-    name: proyek3-postgres
-    image: postgres:13-alpine
-    state: started
-    restart_policy: unless-stopped
-    network_mode: '{{ docker_bridge_network }}'
-    networks:
-      - name: '{{ docker_bridge_network }}'
-        ipv4_address: '{{ docker_ipv4_address_postgres }}'
-    mounts:
-      - source: '{{ working_dir }}/data'
-        target: /var/lib/postgresql/data
-        type: bind
-    env:
-      POSTGRES_USER: '{{ postgres_username }}'
-      POSTGRES_PASSWORD: '{{ postgres_password }}'
-      POSTGRES_DB: '{{ postgres_database }}'
-    ports:
-      - '5432:5432'
-- name: wait for postgres to accept connection
-  shell: docker logs proyek3-postgres
-  register: proyek3_postgres_logs
-  until: proyek3_postgres_logs.stderr.find('database system is ready to accept connections') != -1
-  retries: 10
-  delay: 3
-- name: create schema if the vars exists
+- name: Setup environment
   block:
-    - name: 'create {{ postgres_schema }} schema'
-      postgresql_query:
-        login_host: '{{ docker_ipv4_address_postgres }}'
-        login_user: '{{ postgres_username }}'
-        login_password: '{{ postgres_password }}'
-        login_db: '{{ postgres_database }}'
-        autocommit: yes
-        query: 'CREATE SCHEMA IF NOT EXISTS {{ postgres_schema }};'
-  when: postgres_schema is defined
+  - name: 'Create {{ working_dir }}'
+    ansible.builtin.file:
+      path: '{{ working_dir }}'
+      state: directory
+  - name: 'Create {{ working_dir }}/k8s'
+    ansible.builtin.file:
+      path: '{{ working_dir }}/k8s'
+      state: directory
+  - name: 'Create {{ storage_dir }}'
+    ansible.builtin.file:
+      path: '{{ storage_dir }}'
+      state: directory
+- name: Create data storage
+  block:
+  - name: 'Create {{ storage_data_0_dir }}'
+    ansible.builtin.file:
+      path: '{{ storage_data_0_dir }}'
+      state: directory
+  - name: Template a file to k8s/persistent-volume.yml
+    ansible.builtin.template:
+      src: k8s/persistent-volume.yml.j2
+      dest: '{{ working_dir }}/k8s/persistent-volume.yml'
+  - name: Apply PersistentVolumes to the cluster
+    community.kubernetes.k8s:
+      src: '{{ working_dir }}/k8s/persistent-volume.yml'
+      state: present
+- name: Setup postgres
+  block:
+  - name: Template a file to k8s/stateful-set.yml
+    ansible.builtin.template:
+      src: k8s/stateful-set.yml.j2
+      dest: '{{ working_dir }}/k8s/stateful-set.yml'
+  - name: Apply StatefulSet manifest to the cluster
+    community.kubernetes.k8s:
+      src: '{{ working_dir }}/k8s/stateful-set.yml'
+      state: present
+  - name: Template a file to k8s/service.yml
+    ansible.builtin.template:
+      src: k8s/service.yml.j2
+      dest: '{{ working_dir }}/k8s/service.yml'
+  - name: Apply Service manifest to the cluster
+    community.kubernetes.k8s:
+      src: '{{ working_dir }}/k8s/service.yml'
+      state: present

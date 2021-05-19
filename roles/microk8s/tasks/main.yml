@@ -1,0 +1,67 @@
+- name: Setup microk8s
+  block:
+  - name: Install microk8s
+    community.general.snap:
+      name: microk8s
+      channel: 1.20/stable
+      classic: yes
+      state: present
+  - name: 'Add {{ ansible_user }} to microk8s group'
+    ansible.builtin.user:
+      name: '{{ ansible_user }}'
+      groups: microk8s
+      append: yes
+  - name: 'Add /home/{{ ansible_user }}/.kube'
+    file:
+      path: '/home/{{ ansible_user }}/.kube'
+      owner: '{{ ansible_user }}'
+      recurse: yes
+  - name: 'Save cluster config to /home/{{ ansible_user }}/.kube/config'
+    shell:
+      cmd: 'microk8s config > /home/{{ ansible_user }}/.kube/config'
+  - name: Reset ssh connection
+    meta: reset_connection
+  - name: Start microk8s service
+    become: yes
+    shell:
+      cmd: microk8s start
+  - name: Wait for microk8s to start
+    shell:
+      cmd: microk8s status --wait-ready
+  - name: Install OpenShift python client
+    pip:
+      name: openshift
+      state: present
+- name: Install and enable microk8s addons
+  block:
+  - name: Enable dns
+    ansible.builtin.shell:
+      cmd: microk8s enable dns
+  - name: Enable ingress
+    ansible.builtin.shell:
+      cmd: microk8s enable ingress
+  - name: Enable cert-manager
+    block:
+    - name: Download cert-manager manifest
+      ansible.builtin.get_url:
+        url: https://github.com/jetstack/cert-manager/releases/download/v1.3.1/cert-manager.yaml
+        dest: /tmp/metrics-server.yaml
+        mode: 0640
+    - name: Apply cert-manager manifest
+      community.kubernetes.k8s:
+        src: /tmp/metrics-server.yaml
+        state: present
+- name: Setup required namespace
+  block:
+  - name: Create proyek3 namespace
+    community.kubernetes.k8s:
+      name: proyek3
+      api_version: v1
+      kind: Namespace
+      state: present
+  - name: Create proyek3-staging namespace
+    community.kubernetes.k8s:
+      name: proyek3-staging
+      api_version: v1
+      kind: Namespace
+      state: present

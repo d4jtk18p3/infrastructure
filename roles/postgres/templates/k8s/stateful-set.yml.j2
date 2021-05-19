@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: proyek3
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  serviceName: postgres
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:13
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/postgresql/data
+        env:
+        - name: POSTGRES_DB
+          value: {{ postgres_username }}
+        - name: POSTGRES_USER
+          value: {{ postgres_username }}
+        - name: POSTGRES_PASSWORD
+          value: {{ postgres_password }}
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 2Gi

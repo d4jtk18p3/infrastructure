@@ -1,0 +1,25 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keycloak
+  namespace: proyek3
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  tls:
+  - hosts:
+    - {{ keycloak_hostname }}
+    secretName: keycloak.tls
+  rules:
+  - host: {{ keycloak_hostname }}
+    http:
+      paths:
+      - pathType: Prefix
+        path: /keycloak-proxy(/|$)(.*)
+        backend:
+          service:
+            name: keycloak
+            port:
+              number: 80

@@ -1,0 +1,23 @@
+- name: 'clone {{ working_git }}'
+  ansible.builtin.git:
+    repo: '{{ working_git }}'
+    dest: '{{ working_dir }}'
+    version: main
+- name: create /opt/app
+  file:
+    path: '{{ root_dir }}/opt/app'
+    state: directory
+- name: build frontend
+  block:
+    - name: build frontend
+      docker_container:
+        name: proyek3-frontend-build
+        image: 'node:lts-alpine'
+        state: started
+        working_dir: /opt/app
+        interactive: yes
+        mounts:
+          - source: '{{ working_dir }}'
+            target: /opt/app
+            type: bind
+        command: 'sh -c "npm install && npm run build"'

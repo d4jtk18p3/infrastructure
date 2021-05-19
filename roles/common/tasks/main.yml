@@ -1,15 +1,17 @@
-- name: create system_dir
-  file:
-    path: '{{ system_dir }}'
-    state: directory
-- name: install docker sdk
-  pip:
-    name: docker
-- name: install psycopg2
-  pip:
-    name: Psycopg2-binary
-- name: create docker bridge network
-  docker_network:
-    name: '{{ docker_bridge_network }}'
-    ipam_config:
-      - subnet: '{{ docker_subnet }}'
+- name: Initialize system
+  block:
+  - name: Install snap
+    become: yes
+    apt:
+      name: snapd
+  - name: Install snap core
+    become: yes
+    snap:
+      name: core
+      state: present
+  - name: 'Install apache2-utils'
+    become: yes
+    apt:
+      name: apache2-utils
+      state: present
+  tags: ['never', 'init']

@@ -1,10 +1,11 @@
 - name: site
   hosts: deployment
-  vars:
-    system_dir: '{{ ansible_env.HOME }}/.proyek-3'
-  tasks:
-    - name: dbg
-      debug:
-        msg: '{{ maintainer_email }}'
-    - import_role:
-        name: "{{ role_name }}"
+  environment:
+    K8S_AUTH_KUBECONFIG: ~/.kube/config
+    PATH: '{{ ansible_env.PATH }}:/snap/bin'
+  roles:
+  # - common
+  # - microk8s
+  # - registry
+  # - postgres
+  - keycloak
