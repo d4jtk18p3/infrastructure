@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: keycloak
+  name: adminer
   namespace: production
 spec:
-  ports:
-  - port: 80
-    targetPort: 8080
   selector:
-    app: keycloak
+    app: adminer
+  ports:
+    - port: 80
+      targetPort: 8080

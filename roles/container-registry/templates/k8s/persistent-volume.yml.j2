@@ -1,16 +1,17 @@
+---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: production--data-postgres-0
+  name: production--data-container-registry-0
   namespace: production
 spec:
   storageClassName: ''
   capacity:
-    storage: 2Gi
+    storage: 4Gi
   accessModes:
   - ReadWriteOnce
   claimRef:
-    name: data-postgres-0
+    name: data-container-registry-0
     namespace: production
   local:
     path: {{ storage_data_0_dir }}

@@ -1,11 +1,36 @@
 - name: site
   hosts: deployment
   environment:
-    K8S_AUTH_KUBECONFIG: ~/.kube/config
     PATH: '{{ ansible_env.PATH }}:/snap/bin'
+  collections:
+  - kubernetes.core
   roles:
-  # - common
-  # - microk8s
-  # - registry
-  # - postgres
-  - keycloak
+  # Broken
+  - role: common
+    tags:
+    - never
+    - init
+  # Broken
+  - role: microk8s
+    tags:
+    - never
+    - init
+  - role: container-registry
+    tags:
+    - never
+    - init
+  - role: postgres
+    tags:
+    - never
+  - role: redis
+    tags:
+    - never
+  - role: adminer
+    tags:
+    - never
+  - role: keycloak
+    tags:
+    - never
+  - role: akun-service
+#    tags:
+#    - never

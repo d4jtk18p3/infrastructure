@@ -1,10 +1,8 @@
-working_dir: '{{ system_tmp_dir }}/keycloak'
-
-keycloak_hostname: keycloak.6766998f.nip.io
+keycloak_hostname: 'akun.{{ system_hostname }}'
 keycloak_username: proyek3
 keycloak_password: '{{ vault_keycloak_password }}'
 
-postgres_hostname: postgres.proyek3
-postgres_username: proyek3
+postgres_hostname: postgres.production
+postgres_usernam: proyek3
 postgres_password: '{{ vault_postgres_password }}'
 postgres_database: keycloak

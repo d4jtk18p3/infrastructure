@@ -1,7 +1,0 @@
-system_hostname: 6766998f.nip.io
-
-ansible_port: 22
-ansible_user: proyek3
-ansible_password: '{{ vault_ansible_password }}'
-ansible_become_password: '{{ vault_ansible_become_password }}'
-ansible_python_interpreter: /usr/bin/python3

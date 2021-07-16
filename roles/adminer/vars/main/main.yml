@@ -1,0 +1,1 @@
+adminer_hostname: 'adminer.{{ system_hostname }}'

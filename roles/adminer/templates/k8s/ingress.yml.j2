@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: adminer
+  namespace: production
+spec:
+  rules:
+  - host: {{ adminer_hostname }}
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: adminer
+            port:
+              number: 80

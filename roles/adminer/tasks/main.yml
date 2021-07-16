@@ -7,3 +7,8 @@
   kubernetes.core.k8s:
     state: present
     template: k8s/service.yml.j2
+
+- name: Apply Ingress manifest to the cluster
+  kubernetes.core.k8s:
+    state: present
+    template: k8s/ingress.yml.j2

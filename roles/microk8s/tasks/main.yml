@@ -1,67 +1,97 @@
 - name: Setup microk8s
   block:
   - name: Install microk8s
+    become: yes
     community.general.snap:
       name: microk8s
-      channel: 1.20/stable
       classic: yes
       state: present
+    tags:
+    - never
+
   - name: 'Add {{ ansible_user }} to microk8s group'
+    become: yes
     ansible.builtin.user:
       name: '{{ ansible_user }}'
       groups: microk8s
       append: yes
+    tags:
+    - never
+
   - name: 'Add /home/{{ ansible_user }}/.kube'
     file:
       path: '/home/{{ ansible_user }}/.kube'
       owner: '{{ ansible_user }}'
       recurse: yes
+    tags:
+    - never
+
+  - name: Reset ssh connection
+    meta: reset_connection
+    tags:
+    - never
+
   - name: 'Save cluster config to /home/{{ ansible_user }}/.kube/config'
     shell:
       cmd: 'microk8s config > /home/{{ ansible_user }}/.kube/config'
-  - name: Reset ssh connection
-    meta: reset_connection
+    tags:
+    - never
+
   - name: Start microk8s service
     become: yes
     shell:
       cmd: microk8s start
+    tags:
+    - never
+
   - name: Wait for microk8s to start
     shell:
       cmd: microk8s status --wait-ready
-  - name: Install OpenShift python client
+    tags:
+    - never
+
+  - name: Install Kubernetes python client
     pip:
-      name: openshift
       state: present
+      name: kubernetes
+
 - name: Install and enable microk8s addons
+  tags:
+  - never
   block:
   - name: Enable dns
     ansible.builtin.shell:
       cmd: microk8s enable dns
+
   - name: Enable ingress
     ansible.builtin.shell:
       cmd: microk8s enable ingress
-  - name: Enable cert-manager
-    block:
-    - name: Download cert-manager manifest
-      ansible.builtin.get_url:
-        url: https://github.com/jetstack/cert-manager/releases/download/v1.3.1/cert-manager.yaml
-        dest: /tmp/metrics-server.yaml
-        mode: 0640
-    - name: Apply cert-manager manifest
-      community.kubernetes.k8s:
-        src: /tmp/metrics-server.yaml
-        state: present
+
+- name: Enable cert-manager
+  block:
+  - name: Download cert-manager manifest
+    ansible.builtin.get_url:
+      url: https://github.com/jetstack/cert-manager/releases/download/v1.4.0/cert-manager.yaml
+      dest: /tmp/cert-manager.yaml
+      mode: 0640
+
+  - name: Apply cert-manager manifest
+    kubernetes.core.k8s:
+      src: /tmp/cert-manager.yaml
+      state: present
+
 - name: Setup required namespace
   block:
-  - name: Create proyek3 namespace
-    community.kubernetes.k8s:
-      name: proyek3
+  - name: Create production namespace
+    kubernetes.core.k8s:
+      name: production
       api_version: v1
       kind: Namespace
       state: present
-  - name: Create proyek3-staging namespace
-    community.kubernetes.k8s:
-      name: proyek3-staging
+
+  - name: Create staging namespace
+    kubernetes.core.k8s:
+      name:  staging
       api_version: v1
       kind: Namespace
       state: present

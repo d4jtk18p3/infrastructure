@@ -1,0 +1,90 @@
+- name: Add registry to mirror list
+  ansible.builtin.template:
+    src: containerd-template.toml.j2
+    dest: '/var/snap/microk8s/current/args/containerd-template.toml'
+
+- name: Stop microk8s daemon
+  become: yes
+  shell:
+    cmd: microk8s stop
+
+- name: Start microk8s daemon
+  become: yes
+  shell:
+    cmd: microk8s start
+
+- name: Wait for microk8s to start
+  shell:
+    cmd: microk8s status --wait-ready
+
+- name: Setup data storage
+  block:
+  - name: 'Create {{ storage_dir }}'
+    ansible.builtin.file:
+      path: '{{ storage_dir }}'
+      state: directory
+
+  - name: 'Create {{ storage_data_0_dir }}'
+    ansible.builtin.file:
+      path: '{{ storage_data_0_dir }}'
+      state: directory
+
+  - name: Apply PersistentVolumes to the cluster
+    kubernetes.core.k8s:
+      state: present
+      template: k8s/persistent-volume.yml.j2
+
+- name: Setup auth & certs secret
+  block:
+  - name: 'Create {{ storage_auth_dir }}'
+    ansible.builtin.file:
+      path: '{{ storage_auth_dir }}'
+      state: directory
+
+  - name: 'Generate credentiials'
+    shell:
+      cmd: 'htpasswd -bBc {{ storage_auth_dir }}/htpasswd {{ container_registry_username }} {{ container_registry_password }}'
+
+  - name: 'Slurp {{ storage_auth_dir }}/htpasswd'
+    ansible.builtin.slurp:
+      src: '{{ storage_auth_dir }}/htpasswd'
+    register: htpasswd
+
+  - name: 'Create {{ storage_certs_dir }}'
+    ansible.builtin.file:
+      path: '{{ storage_certs_dir }}'
+      state: directory
+  
+  - name: Generate tls key pair
+    shell:
+      cmd: 'openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out {{ storage_certs_dir }}/domain.crt -keyout {{ storage_certs_dir }}/domain.key -subj "/CN=container-registry.7f000001.nip.io/O=secret.container-registry.tls"'
+
+  - name: 'Slurp {{ storage_certs_dir }}/domain.crt'
+    ansible.builtin.slurp:
+      src: '{{ storage_certs_dir }}/domain.crt'
+    register: certs_domain_crt
+
+  - name: 'Slurp {{ storage_certs_dir }}/domain.key'
+    ansible.builtin.slurp:
+      src: '{{ storage_certs_dir }}/domain.key'
+    register: certs_domain_key
+
+  - name: Apply secret manifest to the cluster
+    kubernetes.core.k8s:
+      template: k8s/secret.yml.j2
+      state: present
+
+- name: Apply StatefulSet manifest to the cluster
+  kubernetes.core.k8s:
+    state: present
+    template: k8s/stateful-set.yml.j2
+
+- name: Apply Service manifest to the cluster
+  kubernetes.core.k8s:
+    state: present
+    template: k8s/service.yml.j2
+
+- name: Apply Ingress manifest to the cluster
+  kubernetes.core.k8s:
+    state: present
+    template: k8s/ingress.yml.j2 

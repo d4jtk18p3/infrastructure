@@ -1,0 +1,55 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ service_frontend_name }}
+  namespace: {{ service_namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ service_frontend_name }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ service_frontend_name }}
+    spec:
+      containers:
+      - name: {{ service_frontend_name }}
+        image: {{ service_container_registry }}/{{ service_frontend_name }}:{{ service_frontend_gitresult.after }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ service_keycloak_proxy_name }}
+  namespace: {{ service_namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ service_keycloak_proxy_name }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ service_keycloak_proxy_name }}
+    spec:
+      containers:
+      - name: {{ service_keycloak_proxy_name }}
+        image: {{ service_container_registry }}/{{ service_keycloak_proxy_name }}:{{ service_keycloak_proxy_gitresult.after }}
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: KEYCLOAK_BASE_URL
+          value: {{ service_keycloak_proxy_keycloak_base_url }}
+        - name: KEYCLOAK_LOGIN_URL
+          value: {{ service_keycloak_proxy_keycloak_login_url }}
+        - name: NODE_ENV
+          value: '{{ service_namespace }}'
+        - name: PORT
+          value: '8080'
+        - name: REDIS_HOSTNAME
+          value: {{ service_keycloak_proxy_redis_hostname }}
+        ports:
+        - containerPort: 8080

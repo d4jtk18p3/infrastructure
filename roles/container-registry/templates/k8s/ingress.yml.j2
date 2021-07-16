@@ -1,20 +1,19 @@
----
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: keycloak
+  name: container-registry
   namespace: production
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/proxy-body-size: '0m'
 spec:
   rules:
-  - host: {{ keycloak_hostname }}
+  - host: {{ container_registry_hostname }}
     http:
       paths:
       - pathType: Prefix
-        path: /keycloak-proxy(/|$)(.*)
+        path: /
         backend:
           service:
-            name: keycloak
+            name: container-registry
             port:
               number: 80

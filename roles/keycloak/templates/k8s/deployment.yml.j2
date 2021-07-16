@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: keycloak
-  namespace: proyek3
+  namespace: production
 spec:
   selector:
     matchLabels:
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: keycloak
-        image: quay.io/keycloak/keycloak:12.0.4
+        image: quay.io/keycloak/keycloak:14.0.0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
@@ -26,7 +26,7 @@ spec:
         - name: KEYCLOAK_PASSWORD
           value: {{ keycloak_password }}
         - name: KEYCLOAK_FRONTEND_URL
-          value: https://keycloak.6766998f.nip.io/keycloak-proxy/auth
+          value: http://{{ keycloak_hostname }}/keycloak-proxy/auth
         - name: DB_VENDOR
           value: postgres
         - name: DB_ADDR
