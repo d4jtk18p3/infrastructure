@@ -1,0 +1,52 @@
+- name: 'Prepare {{ service_absensi_name }}'
+  block:
+  - name: 'Clone {{ service_absensi_working_git }}'
+    ansible.builtin.git:
+      repo: '{{ service_absensi_working_git }}'
+      dest: '{{ service_absensi_working_dir }}'
+      version: main
+    register: service_absensi_gitresult
+
+  - name: 'Build {{ service_absensi_name }} image'
+    containers.podman.podman_image:
+      name: '{{ service_absensi_name }}'
+      tag: '{{ service_absensi_gitresult.after }}'
+      path: '{{ service_absensi_working_dir }}'
+      push: yes
+      push_args:
+        dest: '{{ service_container_registry }}'
+      validate_certs: no
+
+- name: 'Prepare {{ service_frontend_name }}'
+  block:
+  - name: 'Clone {{ service_frontend_working_git }}'
+    ansible.builtin.git:
+      repo: '{{ service_frontend_working_git }}'
+      dest: '{{ service_frontend_working_dir }}'
+      version: main
+    register: service_frontend_gitresult
+
+  - name: 'Build {{ service_frontend_name }} image'
+    containers.podman.podman_image:
+      name: '{{ service_frontend_name }}'
+      tag: '{{ service_frontend_gitresult.after }}'
+      path: '{{ service_frontend_working_dir }}'
+      push: yes
+      push_args:
+        dest: '{{ service_container_registry }}'
+      validate_certs: no
+  
+- name: Apply Deployment manifest to the cluster
+  kubernetes.core.k8s:
+    state: present
+    template: k8s/deployment.yml.j2
+
+- name: Apply Service manifest to the cluster
+  kubernetes.core.k8s:
+    state: present
+    template: k8s/service.yml.j2
+
+- name: Apply Ingress manifest to the cluster
+  kubernetes.core.k8s:
+    state: present
+    template: k8s/ingress.yml.j2
