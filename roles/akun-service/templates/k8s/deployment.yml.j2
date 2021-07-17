@@ -2,21 +2,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ service_frontend_name }}
+  name: {{ frontend_manifest }}
   namespace: {{ service_namespace }}
 spec:
   selector:
     matchLabels:
-      app: {{ service_frontend_name }}
+      app: {{ frontend_manifest }}
   replicas: 1
   template:
     metadata:
       labels:
-        app: {{ service_frontend_name }}
+        app: {{ frontend_manifest }}
     spec:
       containers:
-      - name: {{ service_frontend_name }}
-        image: {{ service_container_registry }}/{{ service_frontend_name }}:{{ service_frontend_gitresult.after }}
+      - name: {{ frontend_manifest }}
+        image: {{ container_registry }}/{{ frontend_manifest }}:{{ frontend_gitresult.after }}
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
@@ -24,32 +24,75 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ service_keycloak_proxy_name }}
+  name: {{ keycloak_manifest }}
   namespace: {{ service_namespace }}
 spec:
   selector:
     matchLabels:
-      app: {{ service_keycloak_proxy_name }}
+      app: {{ keycloak_manifest }}
   replicas: 1
   template:
     metadata:
       labels:
-        app: {{ service_keycloak_proxy_name }}
+        app: {{ keycloak_manifest }}
     spec:
       containers:
-      - name: {{ service_keycloak_proxy_name }}
-        image: {{ service_container_registry }}/{{ service_keycloak_proxy_name }}:{{ service_keycloak_proxy_gitresult.after }}
+      - name: keycloak
+        image: quay.io/keycloak/keycloak:14.0.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: KEYCLOAK_USER
+          value: {{ keycloak_username }}
+        - name: KEYCLOAK_PASSWORD
+          value: {{ keycloak_password }}
+        - name: KEYCLOAK_FRONTEND_URL
+          value: http://{{ service_hostname }}/keycloak-proxy/auth
+        - name: DB_VENDOR
+          value: postgres
+        - name: DB_ADDR
+          value: {{ postgres_hostname }}
+        - name: DB_USER
+          value: {{ postgres_username }}
+        - name: DB_PASSWORD
+          value: {{ postgres_password }}
+        - name: DB_DATABASE
+          value: {{ postgres_database }}
+        - name: PROXY_ADDRESS_FORWARDING
+          value: 'true'
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ keycloak_proxy_manifest }}
+  namespace: {{ service_namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ keycloak_proxy_manifest }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ keycloak_proxy_manifest }}
+    spec:
+      containers:
+      - name: {{ keycloak_proxy_manifest }}
+        image: {{ container_registry }}/{{ keycloak_proxy_manifest }}:{{ keycloak_proxy_gitresult.after }}
         imagePullPolicy: IfNotPresent
         env:
         - name: KEYCLOAK_BASE_URL
-          value: {{ service_keycloak_proxy_keycloak_base_url }}
+          value: {{ keycloak_base_url }}
         - name: KEYCLOAK_LOGIN_URL
-          value: {{ service_keycloak_proxy_keycloak_login_url }}
+          value: {{ keycloak_login_url }}
+        - name: KEYCLOAK_LOGIN_PATTERN
+          value: {{ keycloak_proxy_login_pattern }}
         - name: NODE_ENV
           value: '{{ service_namespace }}'
         - name: PORT
           value: '8080'
         - name: REDIS_HOSTNAME
-          value: {{ service_keycloak_proxy_redis_hostname }}
+          value: {{ redis_hostname }}
         ports:
         - containerPort: 8080

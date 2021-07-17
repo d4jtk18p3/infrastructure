@@ -1,9 +1,6 @@
-storage_dir: '{{ system_storage_dir }}/container-registry'
+component_name: 'container-registry'
+component_namespace: 'production'
+component_hostname: '{{ component_name }}.{{ system_hostname }}'
 
-storage_auth_dir: '{{ system_storage_dir }}/container-registry/auth'
-storage_certs_dir: '{{ system_storage_dir }}/container-registry/certs'
-storage_data_0_dir: '{{ system_storage_dir }}/container-registry/data-0'
-
-container_registry_hostname: 'container-registry.{{ system_hostname }}'
-container_registry_username: proyek3
-container_registry_password: '{{ vault_registry_password }}'
+storage_dir: '{{ system_storage_dir }}/{{ component_name }}'
+storage_data_0_dir: '{{ system_storage_dir }}/{{ component_name }}/data-0'

@@ -1,28 +1,28 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: container-registry
-  namespace: production
+  name: {{ component_name }}
+  namespace: {{ component_namespace }}
 spec:
   selector:
     matchLabels:
-      app: container-registry
-  serviceName: container-registry
+      app: {{ component_name }}
+  serviceName: {{ component_name }}
   replicas: 1
   template:
     metadata:
       labels:
-        app: container-registry
+        app: {{ component_name }}
     spec:
       containers:
-      - name: container-registry
+      - name: {{ component_name }}
         image: registry:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5000
         volumeMounts:
         - name: data
-          mountPath: /var/lib/container_registry
+          mountPath: /var/lib/{{ component_name }}
   volumeClaimTemplates:
   - metadata:
       name: data

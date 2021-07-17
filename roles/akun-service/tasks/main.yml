@@ -1,41 +1,41 @@
-- name: 'Prepare {{ service_keycloak_proxy_name }}'
+- name: 'Prepare {{ frontend_manifest }}'
   block:
-  - name: 'Clone {{ service_keycloak_proxy_working_git }}'
+  - name: 'Clone {{ frontend_git }}'
     ansible.builtin.git:
-      repo: '{{ service_keycloak_proxy_working_git }}'
-      dest: '{{ service_keycloak_proxy_working_dir }}'
-      version: development
-    register: service_keycloak_proxy_gitresult
+      repo: '{{ frontend_git }}'
+      dest: '{{ frontend_dir }}'
+      version: '{{ frontend_git_version }}'
+    register: frontend_gitresult
 
-  - name: 'Build {{ service_keycloak_proxy_name }} image'
+  - name: 'Build {{ frontend_manifest }} image'
     containers.podman.podman_image:
-      name: '{{ service_keycloak_proxy_name }}'
-      tag: '{{ service_keycloak_proxy_gitresult.after }}'
-      path: '{{ service_keycloak_proxy_working_dir }}'
+      name: '{{ frontend_manifest }}'
+      tag: '{{ frontend_gitresult.after }}'
+      path: '{{ frontend_dir }}'
       push: yes
       push_args:
-        dest: '{{ service_container_registry }}'
+        dest: '{{ container_registry }}'
       validate_certs: no
 
-- name: 'Prepare {{ service_frontend_name }}'
+- name: 'Prepare {{ keycloak_proxy_manifest }}'
   block:
-  - name: 'Clone {{ service_frontend_working_git }}'
+  - name: 'Clone {{ keycloak_proxy_git }}'
     ansible.builtin.git:
-      repo: '{{ service_frontend_working_git }}'
-      dest: '{{ service_frontend_working_dir }}'
-      version: main
-    register: service_frontend_gitresult
+      repo: '{{ keycloak_proxy_git }}'
+      dest: '{{ keycloak_proxy_dir }}'
+      version:  '{{ keycloak_proxy_git_version }}'
+    register: keycloak_proxy_gitresult
 
-  - name: 'Build {{ service_frontend_name }} image'
+  - name: 'Build {{ keycloak_proxy_manifest }} image'
     containers.podman.podman_image:
-      name: '{{ service_frontend_name }}'
-      tag: '{{ service_frontend_gitresult.after }}'
-      path: '{{ service_frontend_working_dir }}'
+      name: '{{ keycloak_proxy_manifest }}'
+      tag: '{{ keycloak_proxy_gitresult.after }}'
+      path: '{{ keycloak_proxy_dir }}'
       push: yes
       push_args:
-        dest: '{{ service_container_registry }}'
+        dest: '{{ container_registry }}'
       validate_certs: no
-  
+
 - name: Apply Deployment manifest to the cluster
   kubernetes.core.k8s:
     state: present
