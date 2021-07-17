@@ -5,4 +5,6 @@
   collections:
   - kubernetes.core
   roles:
-  - role: akun-service
+  - role: logbook-service
+#    tags:
+#    - never
