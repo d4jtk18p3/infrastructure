@@ -34,46 +34,6 @@
       state: present
       template: k8s/persistent-volume.yml.j2
 
-- name: Setup auth & certs secret
-  block:
-  - name: 'Create {{ storage_auth_dir }}'
-    ansible.builtin.file:
-      path: '{{ storage_auth_dir }}'
-      state: directory
-
-  - name: 'Generate credentiials'
-    shell:
-      cmd: 'htpasswd -bBc {{ storage_auth_dir }}/htpasswd {{ container_registry_username }} {{ container_registry_password }}'
-
-  - name: 'Slurp {{ storage_auth_dir }}/htpasswd'
-    ansible.builtin.slurp:
-      src: '{{ storage_auth_dir }}/htpasswd'
-    register: htpasswd
-
-  - name: 'Create {{ storage_certs_dir }}'
-    ansible.builtin.file:
-      path: '{{ storage_certs_dir }}'
-      state: directory
-  
-  - name: Generate tls key pair
-    shell:
-      cmd: 'openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out {{ storage_certs_dir }}/domain.crt -keyout {{ storage_certs_dir }}/domain.key -subj "/CN=container-registry.7f000001.nip.io/O=secret.container-registry.tls"'
-
-  - name: 'Slurp {{ storage_certs_dir }}/domain.crt'
-    ansible.builtin.slurp:
-      src: '{{ storage_certs_dir }}/domain.crt'
-    register: certs_domain_crt
-
-  - name: 'Slurp {{ storage_certs_dir }}/domain.key'
-    ansible.builtin.slurp:
-      src: '{{ storage_certs_dir }}/domain.key'
-    register: certs_domain_key
-
-  - name: Apply secret manifest to the cluster
-    kubernetes.core.k8s:
-      template: k8s/secret.yml.j2
-      state: present
-
 - name: Apply StatefulSet manifest to the cluster
   kubernetes.core.k8s:
     state: present

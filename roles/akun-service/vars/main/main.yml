@@ -1,0 +1,51 @@
+service_name: akun
+service_manifest: '{{ service_name }}'
+service_namespace: production
+service_hostname: '{{ service_name }}.{{ system_hostname }}'
+
+workspace_dir: '{{ system_dir }}/{{ service_name }}'
+workspace_git: 'https://github.com/d4jtk18p3/proyek3-workspace'
+workspace_git_version: main
+
+container_registry: 'container-registry.{{ system_hostname }}'
+jwt_secret: resetemailprivatekeyuntukresetemail
+
+backend_manifest: '{{ service_name }}-backend'
+backend_dir: '{{ workspace_dir }}/backend'
+backend_git: 'https://github.com/d4jtk18p3/proyek3-backend'
+backend_git_version: deployment
+backend_postgres_database: proyek3
+backend_keycloak_client_id: public
+backend_keycloak_admin_client_id: admin-cli
+
+email: proyek3d4jtk2018@gmail.com
+email_password: passwordproyek3
+
+frontend_manifest: '{{ service_name }}-frontend'
+frontend_dir: '{{ workspace_dir }}/frontend'
+frontend_git: 'https://github.com/d4jtk18p3/proyek3-frontend'
+frontend_git_version: main
+
+keycloak_manifest: '{{ service_name }}-keycloak'
+keycloak_username: proyek3
+keycloak_password: '{{ vault_keycloak_password }}'
+keycloak_base_url: 'http://{{ keycloak_manifest }}.{{ service_namespace }}/'
+keycloak_login_url: 'http://{{ service_hostname }}/login'
+keycloak_postgres_database: keycloak
+
+keycloak_proxy_manifest: '{{ service_name }}-keycloak-proxy'
+keycloak_proxy_dir: '{{ workspace_dir }}/keycloak-proxy'
+keycloak_proxy_git: 'https://github.com/d4jtk18p3/proyek3-akun-keycloak-proxy'
+keycloak_proxy_git_version: development
+keycloak_proxy_login_pattern: '^/auth/realms/production/.+/auth.*' 
+
+postgres_hostname: postgres.production
+postgres_port: 5432
+postgres_username: proyek3
+postgres_password: '{{ vault_postgres_password }}'
+
+postgres_database_dir: '{{ workspace_dir }}/postgres-database'
+postgres_database_git: 'https://github.com/d4jtk18p3/proyek3-postgres-database.git'
+postgres_database_git_version: main
+
+redis_hostname: 'redis.{{ service_namespace }}'

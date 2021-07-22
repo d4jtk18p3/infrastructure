@@ -1,0 +1,16 @@
+service_name: monitoring
+service_namespace: production
+service_hostname: '{{ service_name }}.{{ system_hostname }}'
+service_container_registry: 'container-registry.{{ system_hostname }}'
+
+service_frontend_name: '{{ service_name }}-frontend'
+service_frontend_working_dir: '{{ system_dir }}/{{ service_frontend_name }}'
+service_frontend_working_git: 'https://github.com/d4jtk18p3/proyek3-frontend'
+
+service_workspace_dir: '{{ system_dir }}/workspace'
+service_workspace_git: 'https://github.com/d4jtk18p3/proyek3-workspace'
+service_monitoring_name: '{{ service_name }}-backend'
+service_monitoring_working_dir: '{{ service_workspace_dir }}/{{ service_name }}'
+service_monitoring_working_git: 'https://github.com/d4jtk18p3/proyek3-service-monitoring'
+service_database_working_dir: '{{ service_workspace_dir }}/postgres-database'
+service_database_working_git: 'https://github.com/d4jtk18p3/proyek3-postgres-database'

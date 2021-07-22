@@ -1,0 +1,65 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ service_frontend_name }}
+  namespace: {{ service_namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ service_frontend_name }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ service_frontend_name }}
+    spec:
+      containers:
+      - name: {{ service_frontend_name }}
+        image: {{ service_container_registry }}/{{ service_frontend_name }}:{{ service_frontend_gitresult.after }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ service_monitoring_name }}
+  namespace: {{ service_namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ service_monitoring_name }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+      app: {{ service_monitoring_name }}
+    spec:
+      containers:
+      - name: {{ service_monitoring_name }}
+        image: {{ service_container_registry }}/{{ service_monitoring_name }}:{{ service_monitoring_gitresult.after }}
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: SERVER_PORT
+          value: '5001'
+        - name: NODE_ENV
+          value: proyek3
+        - name: DATABASE_HOSTNAME
+          value: postgres.production
+        - name: DATABASE_USERNAME
+          value: proyek3
+        - name: DATABASE_DATABASE
+          value: proyek3
+        - name: DATABASE_PASSWORD
+          value: '7P7pNZ6*xTfm8&z^'
+        - name: DEV_KEYCLOAK_CLIENTID
+          value: nodejs-microservice
+        - name: DEV_KEYCLOAK_AUTH_URL
+          value: https://keycloak.ca9db134.nip.io/auth/
+        - name: DEV_KEYCLOAK_REALM
+          value: Polban-Realm
+        - name: NODE_ENV
+          value: production
+        ports:
+        - containerPort: 5001

@@ -1,0 +1,57 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ frontend_manifest }}
+  namespace: {{ service_namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ frontend_manifest }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ frontend_manifest }}
+    spec:
+      containers:
+      - name: {{ frontend_manifest }}
+        image: {{ container_registry }}/{{ frontend_manifest }}:{{ frontend_gitresult.after }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ logbook_manifest }}
+  namespace: {{ service_namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ logbook_manifest }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ logbook_manifest }}
+    spec:
+      containers:
+      - name: {{ logbook_manifest }}
+        image: {{ container_registry }}/{{ logbook_manifest }}:{{ logbook_gitresult.after }}
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: SERVER_PORT
+          value: '5001'
+        - name: NODE_ENV
+          value: {{ service_namespace }}
+        - name: DATABASE_HOSTNAME
+          value: {{ postgres_hostname }}
+        - name: DATABASE_USERNAME
+          value: {{ postgres_username }}
+        - name: DATABASE_DATABASE
+          value: {{ logbook_postgres_database }}
+        - name: DATABASE_PASSWORD
+          value: {{ postgres_password }}
+        ports:
+        - containerPort: 5001

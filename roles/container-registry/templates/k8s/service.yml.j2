@@ -2,11 +2,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: container-registry
-  namespace: production
+  name: {{ component_name }}
+  namespace: {{ component_namespace }}
 spec:
   ports:
     - port: 80
       targetPort: 5000
   selector:
-    app: container-registry
+    app: {{ component_name }}
