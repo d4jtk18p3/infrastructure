@@ -21,6 +21,8 @@ spec:
         env:
         - name: NODE_ENV
           value: {{ service_namespace }}
+        - name: SERVER_PORT
+          value: '8080'
         - name: DATABASE_HOSTNAME
           value: {{ postgres_hostname }}
         - name: DATABASE_PORT
@@ -50,7 +52,7 @@ spec:
         - name: RESET_EMAIL_PW
           value: {{ email_password }}
         ports:
-        - containerPort: 80
+        - containerPort: 8080
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -135,16 +137,18 @@ spec:
         image: {{ container_registry }}/{{ keycloak_proxy_manifest }}:{{ keycloak_proxy_gitresult.after }}
         imagePullPolicy: IfNotPresent
         env:
+        - name: NODE_ENV
+          value: '{{ service_namespace }}'
+        - name: PORT
+          value: '8080'
+        - name: JWT_SECRET
+          value: {{ jwt_secret }}
         - name: KEYCLOAK_BASE_URL
           value: {{ keycloak_base_url }}
         - name: KEYCLOAK_LOGIN_URL
           value: {{ keycloak_login_url }}
         - name: KEYCLOAK_LOGIN_PATTERN
           value: {{ keycloak_proxy_login_pattern }}
-        - name: NODE_ENV
-          value: '{{ service_namespace }}'
-        - name: PORT
-          value: '8080'
         - name: REDIS_HOSTNAME
           value: {{ redis_hostname }}
         ports:
