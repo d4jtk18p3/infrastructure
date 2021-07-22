@@ -1,0 +1,36 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ service_frontend_name }}
+  namespace: {{ service_namespace }}
+spec:
+  rules:
+  - host: {{ service_hostname }}
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: {{ service_frontend_name }}
+            port:
+              number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ service_absensi_name }}
+  namespace: {{ service_namespace }}
+spec:
+  rules:
+  - host: {{ service_hostname }}
+    http:
+      paths:
+      - pathType: Prefix
+        path: /api
+        backend:
+          service:
+            name: {{ service_absensi_name }}
+            port:
+              number: 80
