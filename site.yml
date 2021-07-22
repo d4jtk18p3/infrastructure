@@ -12,4 +12,6 @@
     - init
   # Broken
   - role: absensi-service
-  
+  - role: logbook-service
+#    tags:
+#    - never

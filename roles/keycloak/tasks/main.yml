@@ -1,9 +1,0 @@
-- name: Apply Deployment manifest to the cluster
-  kubernetes.core.k8s:
-    state: present
-    template: k8s/deployment.yml.j2
-
-- name: Apply Service manifest to the cluster
-  kubernetes.core.k8s:
-    state: present
-    template: k8s/service.yml.j2

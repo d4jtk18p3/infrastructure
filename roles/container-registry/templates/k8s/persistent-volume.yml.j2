@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: production--data-container-registry-0
+  name: {{ component_namespace }}--data-{{ component_name }}-0
   namespace: production
 spec:
   storageClassName: ''
@@ -11,7 +11,7 @@ spec:
   accessModes:
   - ReadWriteOnce
   claimRef:
-    name: data-container-registry-0
+    name: data-{{ component_name }}-0
     namespace: production
   local:
     path: {{ storage_data_0_dir }}

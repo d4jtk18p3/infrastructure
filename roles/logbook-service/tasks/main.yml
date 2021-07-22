@@ -5,32 +5,32 @@
     version: '{{ workspace_git_version }}'
   register: workspace_gitresult
 
-- name: 'Prepare {{ backend_manifest }}'
+- name: 'Prepare {{ logbook_manifest }}'
   block:
-  - name: 'Clone {{ backend_git }}'
+  - name: 'Clone {{ logbook_git }}'
     ansible.builtin.git:
-      repo: '{{ backend_git }}'
-      dest: '{{ backend_dir }}'
-      version: '{{ backend_git_version }}'
-    register: backend_gitresult
+      repo: '{{ logbook_git }}'
+      dest: '{{ logbook_dir }}'
+      version: main
+    register: logbook_gitresult
 
   - name: 'Clone {{ postgres_database_git }}'
     ansible.builtin.git:
       repo: '{{ postgres_database_git }}'
       dest: '{{ postgres_database_dir }}'
       version: '{{ postgres_database_git_version }}'
-
-  - name: 'Build {{ backend_manifest }} image'
+  
+  - name: 'Build {{ logbook_manifest }} image'
     containers.podman.podman_image:
-      name: '{{ backend_manifest }}'
-      tag: '{{ backend_gitresult.after }}'
+      name: '{{ logbook_manifest }}'
+      tag: '{{ logbook_gitresult.after }}'
       path: '{{ workspace_dir }}'
       push: yes
       push_args:
         dest: '{{ container_registry }}'
       validate_certs: no
       build:
-        extra_args: '--file {{ backend_dir }}/Dockerfile'
+        extra_args: '--file {{ logbook_dir }}/Dockerfile'
 
 - name: 'Prepare {{ frontend_manifest }}'
   block:
@@ -46,25 +46,6 @@
       name: '{{ frontend_manifest }}'
       tag: '{{ frontend_gitresult.after }}'
       path: '{{ frontend_dir }}'
-      push: yes
-      push_args:
-        dest: '{{ container_registry }}'
-      validate_certs: no
-
-- name: 'Prepare {{ keycloak_proxy_manifest }}'
-  block:
-  - name: 'Clone {{ keycloak_proxy_git }}'
-    ansible.builtin.git:
-      repo: '{{ keycloak_proxy_git }}'
-      dest: '{{ keycloak_proxy_dir }}'
-      version:  '{{ keycloak_proxy_git_version }}'
-    register: keycloak_proxy_gitresult
-
-  - name: 'Build {{ keycloak_proxy_manifest }} image'
-    containers.podman.podman_image:
-      name: '{{ keycloak_proxy_manifest }}'
-      tag: '{{ keycloak_proxy_gitresult.after }}'
-      path: '{{ keycloak_proxy_dir }}'
       push: yes
       push_args:
         dest: '{{ container_registry }}'

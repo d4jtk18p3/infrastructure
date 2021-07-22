@@ -76,5 +76,5 @@ oom_score = 0
         endpoint = ["https://registry-1.docker.io", ]
       [plugins."io.containerd.grpc.v1.cri".registry.mirrors."localhost:32000"]
         endpoint = ["http://localhost:32000"]
-      [plugins."io.containerd.grpc.v1.cri".registry.mirrors."{{ container_registry_hostname }}"]
-        endpoint = ["http://{{ container_registry_hostname }}"]
+      [plugins."io.containerd.grpc.v1.cri".registry.mirrors."{{ component_hostname }}"]
+        endpoint = ["http://{{ component_hostname }}"]

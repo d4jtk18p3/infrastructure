@@ -2,25 +2,6 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ backend_manifest }}
-  namespace: {{ service_namespace }}
-spec:
-  rules:
-  - host: {{ service_hostname }}
-    http:
-      paths:
-      - pathType: Prefix
-        path: /api
-        backend:
-          service:
-            name: {{ backend_manifest }}
-            port:
-              number: 80
-
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
   name: {{ frontend_manifest }}
   namespace: {{ service_namespace }}
 spec:
@@ -39,19 +20,17 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ keycloak_proxy_manifest }}
+  name: {{ logbook_manifest }}
   namespace: {{ service_namespace }}
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
   - host: {{ service_hostname }}
     http:
       paths:
       - pathType: Prefix
-        path: /keycloak-proxy(/|$)(.*)
+        path: /api
         backend:
           service:
-            name: {{ keycloak_proxy_manifest }}
+            name: {{ logbook_manifest }}
             port:
               number: 80
