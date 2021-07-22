@@ -22,7 +22,7 @@ spec:
         - containerPort: 5000
         volumeMounts:
         - name: data
-          mountPath: /var/lib/{{ component_name }}
+          mountPath: /var/lib/registry
   volumeClaimTemplates:
   - metadata:
       name: data
