@@ -1,0 +1,26 @@
+- name: Create data storage
+  block:
+  - name: 'Create {{ storage_dir }}'
+    ansible.builtin.file:
+      path: '{{ storage_dir }}'
+      state: directory
+
+  - name: 'Create {{ storage_data_0_dir }}'
+    ansible.builtin.file:
+      path: '{{ storage_data_0_dir }}'
+      state: directory
+
+  - name: Apply PersistentVolumes to the cluster
+    kubernetes.core.k8s:
+      state: present
+      template: k8s/persistent-volume.yml.j2
+
+- name: Apply StatefulSet manifest to the cluster
+  kubernetes.core.k8s:
+    state: present
+    template: k8s/stateful-set.yml.j2
+
+- name: Apply Service manifest to the cluster
+  kubernetes.core.k8s:
+    state: present
+    template: k8s/service.yml.j2

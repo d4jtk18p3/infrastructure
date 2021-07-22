@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb
+  namespace: production
+spec:
+  selector:
+    matchLabels:
+      app: mongodb
+  serviceName: mongodb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:5
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8081
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mongodb/data
+        env:
+        - name: MONGO_INITDB_DATABASE
+          value: {{ mongodb_username }}
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: {{ mongodb_username }}
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: {{ mongodb_password }}
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 2Gi

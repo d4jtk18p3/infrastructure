@@ -1,0 +1,9 @@
+storage_dir: '{{ system_storage_dir }}/mongodb'
+
+storage_data_0_dir: '{{ system_storage_dir }}/mongodb/data-0'
+
+mongodb_username: proyek3
+mongodb_password: '{{ vault_mongodb_password }}'
+
+MONGO_INITDB_ROOT_USERNAME: proyek3
+MONGO_INITDB_ROOT_PASSWORD: proyek3
