@@ -1,5 +1,19 @@
 - name: 'Prepare {{ service_absensi_name }}'
   block:
+  - name: 'Clone {{ service_workspace_git }}'
+    ansible.builtin.git:
+      repo: '{{ service_workspace_git }}'
+      dest: '{{ service_workspace_dir }}'
+      version: main
+    register: service_workspace_gitresult
+
+  - name: 'Clone {{ service_database_working_git }}'
+    ansible.builtin.git:
+      repo: '{{ service_database_working_git }}'
+      dest: '{{ service_database_working_dir }}'
+      version: main
+    register: service_database_gitresult
+
   - name: 'Clone {{ service_absensi_working_git }}'
     ansible.builtin.git:
       repo: '{{ service_absensi_working_git }}'

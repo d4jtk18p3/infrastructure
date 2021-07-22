@@ -11,26 +11,5 @@
     - never
     - init
   # Broken
-  - role: microk8s
-    tags:
-    - never
-    - init
-  - role: container-registry
-    tags:
-    - never
-    - init
-  - role: postgres
-    tags:
-    - never
-  - role: redis
-    tags:
-    - never
-  - role: adminer
-    tags:
-    - never
-  - role: keycloak
-    tags:
-    - never
-  - role: akun-service
-#    tags:
-#    - never
+  - role: absensi-service
+  
