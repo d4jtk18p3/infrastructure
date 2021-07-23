@@ -14,11 +14,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ logbook_manifest }}
+  name: {{ backend_manifest }}
   namespace: {{ service_namespace }}
 spec:
   ports:
     - port: 80
       targetPort: 5001
   selector:
-    app: {{ logbook_manifest }}
+    app: {{ backend_manifest }}

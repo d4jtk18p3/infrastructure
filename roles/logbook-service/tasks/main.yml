@@ -5,14 +5,14 @@
     version: '{{ workspace_git_version }}'
   register: workspace_gitresult
 
-- name: 'Prepare {{ logbook_manifest }}'
+- name: 'Prepare {{ backend_manifest }}'
   block:
-  - name: 'Clone {{ logbook_git }}'
+  - name: 'Clone {{ backend_git }}'
     ansible.builtin.git:
-      repo: '{{ logbook_git }}'
-      dest: '{{ logbook_dir }}'
-      version: main
-    register: logbook_gitresult
+      repo: '{{ backend_git }}'
+      dest: '{{ backend_dir }}'
+      version: '{{ backend_git_version }}'
+    register: backend_gitresult
 
   - name: 'Clone {{ postgres_database_git }}'
     ansible.builtin.git:
@@ -20,17 +20,17 @@
       dest: '{{ postgres_database_dir }}'
       version: '{{ postgres_database_git_version }}'
   
-  - name: 'Build {{ logbook_manifest }} image'
+  - name: 'Build {{ backend_manifest }} image'
     containers.podman.podman_image:
-      name: '{{ logbook_manifest }}'
-      tag: '{{ logbook_gitresult.after }}'
+      name: '{{ backend_manifest }}'
+      tag: '{{ backend_gitresult.after }}'
       path: '{{ workspace_dir }}'
       push: yes
       push_args:
         dest: '{{ container_registry }}'
       validate_certs: no
       build:
-        extra_args: '--file {{ logbook_dir }}/Dockerfile'
+        extra_args: '--file {{ backend_dir }}/Dockerfile'
 
 - name: 'Prepare {{ frontend_manifest }}'
   block:

@@ -19,7 +19,7 @@ spec:
         image: mongo
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 8081
+        - containerPort: 27017
         volumeMounts:
         - name: data
           mountPath: /var/lib/mongodb/data
