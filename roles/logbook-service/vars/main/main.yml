@@ -15,7 +15,7 @@ frontend_git: 'https://github.com/d4jtk18p3/proyek3-frontend'
 frontend_git_version: main
 
 logbook_manifest: '{{ service_name }}-backend'
-logbook_dir: '{{ workspace_dir }}/{{ service_name }}'
+logbook_dir: '{{ workspace_dir }}/logbook'
 logbook_git: 'https://github.com/d4jtk18p3/proyek3-service-logbook'
 logbook_postgres_database: proyek3
 

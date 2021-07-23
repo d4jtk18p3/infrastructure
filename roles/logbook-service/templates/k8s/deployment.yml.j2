@@ -53,5 +53,9 @@ spec:
           value: {{ logbook_postgres_database }}
         - name: DATABASE_PASSWORD
           value: {{ postgres_password }}
+        - name: MONGODB_HOSTNAME
+          value: mongodb.production
+        - name: MONGODB_DATABASE
+          value: proyek3
         ports:
         - containerPort: 5001
