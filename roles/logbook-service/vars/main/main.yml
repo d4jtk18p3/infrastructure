@@ -18,7 +18,7 @@ backend_postgres_database: proyek3
 frontend_manifest: '{{ service_name }}-frontend'
 frontend_dir: '{{ workspace_dir }}/frontend'
 frontend_git: 'https://github.com/d4jtk18p3/proyek3-frontend'
-frontend_git_version: deployment
+frontend_git_version: main
 
 postgres_hostname: postgres.production
 postgres_port: 5432
