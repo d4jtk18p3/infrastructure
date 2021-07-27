@@ -1,0 +1,43 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ backend_manifest }}
+  namespace: {{ service_namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ backend_manifest }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ backend_manifest }}
+    spec:
+      containers:
+      - name: {{ backend_manifest }}
+        image: {{ container_registry }}/{{ backend_manifest }}:{{ backend_gitresult.after }}
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: NODE_ENV
+          value: {{ service_namespace }}
+        - name: SERVER_PORT
+          value: '{{ backend_port }}'
+        - name: DATABASE_HOSTNAME
+          value: {{ postgres_hostname }}
+        - name: DATABASE_PORT
+          value: '{{ postgres_port }}'
+        - name: DATABASE_USERNAME
+          value: {{ postgres_username }}
+        - name: DATABASE_DATABASE
+          value: {{ backend_postgres_database }}
+        - name: DATABASE_PASSWORD
+          value: {{ postgres_password }}
+        - name: NOTIF_EMAIL_PRIVATE_KEY
+          value: resetemailprivatekeyuntuknotifemail
+        - name: NOTIF_EMAIL_EMAIL
+          value: proyek3d4jtk2018@gmail.com
+        - name: NOTIF_EMAIL_PW
+          value: passwordproyek3
+        ports:
+        - containerPort: {{ backend_port }}

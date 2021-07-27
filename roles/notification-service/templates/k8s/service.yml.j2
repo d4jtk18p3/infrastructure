@@ -1,0 +1,12 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ backend_manifest }}
+  namespace: {{ service_namespace }}
+spec:
+  ports:
+    - port: 80
+      targetPort: {{ backend_port }}
+  selector:
+    app: {{ backend_manifest }}

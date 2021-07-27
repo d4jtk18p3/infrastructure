@@ -5,4 +5,4 @@
   collections:
   - kubernetes.core
   roles:
-  - role: logbook-service
+  - role: notification-service
