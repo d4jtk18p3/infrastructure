@@ -33,6 +33,8 @@ spec:
           value: {{ backend_postgres_database }}
         - name: DATABASE_PASSWORD
           value: {{ postgres_password }}
+        - name: URL_NOTIF
+          value: http://notification-backend.production
         ports:
         - containerPort: 8080
 ---
