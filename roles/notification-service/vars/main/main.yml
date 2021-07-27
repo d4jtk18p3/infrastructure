@@ -1,0 +1,30 @@
+service_name: notification
+service_manifest: '{{ service_name }}'
+service_namespace: production
+service_hostname: '{{ service_name }}.{{ system_hostname }}'
+
+workspace_dir: '{{ system_dir }}/{{ service_name }}'
+workspace_git: 'https://github.com/d4jtk18p3/proyek3-workspace'
+workspace_git_version: main
+
+container_registry: 'container-registry.{{ system_hostname }}'
+jwt_secret: resetemailprivatekeyuntukresetemail
+
+backend_manifest: '{{ service_name }}-backend'
+backend_dir: '{{ workspace_dir }}/notification'
+backend_git: 'https://github.com/d4jtk18p3/proyek3-notification-service'
+backend_git_version: master
+backend_postgres_database: proyek3
+backend_port: 8080
+
+email: proyek3d4jtk2018@gmail.com
+email_password: passwordproyek3
+
+postgres_hostname: postgres.production
+postgres_port: 5432
+postgres_username: proyek3
+postgres_password: '{{ vault_postgres_password }}'
+
+postgres_database_dir: '{{ workspace_dir }}/postgres-database'
+postgres_database_git: 'https://github.com/d4jtk18p3/proyek3-postgres-database.git'
+postgres_database_git_version: main
