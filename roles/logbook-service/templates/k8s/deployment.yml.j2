@@ -56,15 +56,13 @@ spec:
         - name: DATABASE_PASSWORD
           value: {{ postgres_password }}
         - name: MONGODB_HOSTNAME
-          value: {{ mongodb_hostname }}
-        - name: MONGODB_PORT
-          value: '{{ mongodb_port }}'
+          value: mongodb.production
         - name: MONGODB_DATABASE
-          value: {{ mongodb_database }}
+          value: proyek3
         - name: MONGODB_USERNAME
-          value: {{ mongodb_username }}
+          value: proyek3
         - name: MONGODB_PASSWORD
-          value: {{ mongodb_password }}
+          value: proyek3  
         - name: URL_NOTIF
           value: http://notification-backend.production/
         ports:

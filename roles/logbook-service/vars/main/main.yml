@@ -28,9 +28,3 @@ postgres_password: '{{ vault_postgres_password }}'
 postgres_database_dir: '{{ workspace_dir }}/postgres-database'
 postgres_database_git: 'https://github.com/d4jtk18p3/proyek3-postgres-database.git'
 postgres_database_git_version: main
-
-mongodb_hostname: mongodb.production
-mongodb_port: 27017
-mongodb_database: proyek3
-mongodb_username: proyek3
-mongodb_password: '{{ vault_postgres_password }}'
